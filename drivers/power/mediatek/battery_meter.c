@@ -1958,6 +1958,10 @@ void sw_oam_init_v2(void)
 
 void dod_init(void)
 {
+#if defined(SOC_BY_SW_FG)
+	signed int gFG_capacity_by_sw_ocv = gFG_capacity_by_v;	
+#endif//by zhu
+
 #if defined(SOC_BY_HW_FG)
 	int ret = 0;
 

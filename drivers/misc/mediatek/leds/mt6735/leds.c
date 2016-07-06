@@ -189,7 +189,7 @@ unsigned int one_line_pulse_set_backlight(int level, int div)
 
 
     mutex_lock(&pulse_lock);
-    mt_set_gpio_mode(69, 01);
+    mt_set_gpio_mode(69, 0);
 
     printk(" one_line_pulse_set_backlight----------level(%d)\n", level);
 

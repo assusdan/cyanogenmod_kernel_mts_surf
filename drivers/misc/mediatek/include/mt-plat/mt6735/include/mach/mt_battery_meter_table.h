@@ -1125,3 +1125,4 @@ R_PROFILE_STRUCT_P fgauge_get_profile_r_table(unsigned int temperature);
 
 #endif	/*#ifndef _CUST_BATTERY_METER_TABLE_H*/
 
+

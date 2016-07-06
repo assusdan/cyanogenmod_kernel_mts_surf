@@ -74,6 +74,12 @@ static struct work_struct workTimeOut;
 /* #define FLASH_GPIO_ENF GPIO12 */
 /* #define FLASH_GPIO_ENT GPIO13 */
 
+#include "../../../../include/mt-plat/mt_gpio_core.h"
+#include "../../../../include/mt-plat/mt_gpio.h"
+#include "../../../../video/include/mtkfb.h"
+#include <mt-plat/mt_gpio.h>
+#include "../../../../ssw/inc/ssw.h"
+
 static int g_bLtVersion;
 
 /*****************************************************************************
@@ -254,63 +260,11 @@ int readReg(int reg)
 
 int FL_Enable(void)
 {
-	char buf[2];
-/* char bufR[2]; */
-	if (g_duty < 0)
-		g_duty = 0;
-	else if (g_duty > 16)
-		g_duty = 16;
-	if (g_duty <= 2) {
-		int val;
-
-		if (g_bLtVersion == 1) {
-			if (g_duty == 0)
-				val = 3;
-			else if (g_duty == 1)
-				val = 5;
-			else	/* if(g_duty==2) */
-				val = 7;
-		} else {
-			if (g_duty == 0)
-				val = 1;
-			else if (g_duty == 1)
-				val = 2;
-			else	/* if(g_duty==2) */
-				val = 3;
-		}
-		buf[0] = 9;
-		buf[1] = val << 4;
-		/* iWriteRegI2C(buf , 2, STROBE_DEVICE_ID); */
-		LM3642_write_reg(LM3642_i2c_client, buf[0], buf[1]);
-
-		buf[0] = 10;
-		buf[1] = 0x02;
-		/* iWriteRegI2C(buf , 2, STROBE_DEVICE_ID); */
-		LM3642_write_reg(LM3642_i2c_client, buf[0], buf[1]);
-	} else {
-		int val;
-
-		val = (g_duty - 1);
-		buf[0] = 9;
-		buf[1] = val;
-		/* iWriteRegI2C(buf , 2, STROBE_DEVICE_ID); */
-		LM3642_write_reg(LM3642_i2c_client, buf[0], buf[1]);
-
-		buf[0] = 10;
-		buf[1] = 0x03;
-		/* iWriteRegI2C(buf , 2, STROBE_DEVICE_ID); */
-		LM3642_write_reg(LM3642_i2c_client, buf[0], buf[1]);
-	}
-	PK_DBG(" FL_Enable line=%d\n", __LINE__);
-
-	readReg(0);
-	readReg(1);
-	readReg(6);
-	readReg(8);
-	readReg(9);
-	readReg(0xa);
-	readReg(0xb);
-
+	
+	#define FLASH_GPIO (43)
+	mt_set_gpio_mode(FLASH_GPIO, 0);
+	mt_set_gpio_dir(FLASH_GPIO, GPIO_DIR_OUT);
+	mt_set_gpio_out(FLASH_GPIO, GPIO_OUT_ONE);
 	return 0;
 }
 
@@ -318,14 +272,8 @@ int FL_Enable(void)
 
 int FL_Disable(void)
 {
-	char buf[2];
-
-/* ///////////////////// */
-	buf[0] = 10;
-	buf[1] = 0x00;
-	/* iWriteRegI2C(buf , 2, STROBE_DEVICE_ID); */
-	LM3642_write_reg(LM3642_i2c_client, buf[0], buf[1]);
-	PK_DBG(" FL_Disable line=%d\n", __LINE__);
+	
+	mt_set_gpio_out(FLASH_GPIO, GPIO_OUT_ZERO);
 	return 0;
 }
 

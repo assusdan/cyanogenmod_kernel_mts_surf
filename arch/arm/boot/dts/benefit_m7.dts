@@ -14,6 +14,12 @@
 	flashlight:flashlight {
 		compatible = "mediatek,mt6735-flashlight";
 	};
+	led5:led@5 {
+		compatible = "mediatek,button-backlight";
+		led_mode = <0>;
+		data = <1>;
+		pwm_config = <0 0 0 0 0>;
+	};
 	led6:led@6 {
 		compatible = "mediatek,lcd-backlight";
 		led_mode = <5>;

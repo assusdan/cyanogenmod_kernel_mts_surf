@@ -12,9 +12,13 @@
 #include "lens_info.h"
 
 
-#define AF_DRVNAME "DW9714AF_DRV"
-#define AF_I2C_SLAVE_ADDR        0x18
+#define LENS_I2C_BUSNUM 0
 
+#define AF_DRVNAME "DW9714AF"
+#define AF_I2C_SLAVE_ADDR        0x1c
+#define I2C_REGISTER_ID            0x1c
+#define PLATFORM_DRIVER_NAME "lens_actuator_dw9714af"
+#define AF_DRIVER_CLASS_NAME "actuatordrv_dw9714af"
 #define AF_DEBUG
 #ifdef AF_DEBUG
 #define LOG_INF(format, args...) pr_debug(AF_DRVNAME " [%s] " format, __func__, ##args)
@@ -233,3 +237,4 @@ void DW9714AF_SetI2Cclient(struct i2c_client *pstAF_I2Cclient, spinlock_t *pAF_S
 	g_pAF_SpinLock = pAF_SpinLock;
 	g_pAF_Opened = pAF_Opened;
 }
+

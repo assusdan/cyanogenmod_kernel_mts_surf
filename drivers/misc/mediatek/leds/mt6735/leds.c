@@ -914,15 +914,16 @@ int mt_mt65xx_led_set_cust(struct cust_mt65xx_led *cust, int level)
 					button_flag_isink0 = 1;
 					break;
 				case MT65XX_LED_PMIC_NLED_ISINK1:
-					button_flag_isink1 = 1;
+					button_flag_isink0 = 1;
 					break;
 				case MT65XX_LED_PMIC_NLED_ISINK2:
-					button_flag_isink2 = 1;
+					button_flag_isink0 = 1;
 					break;
 				case MT65XX_LED_PMIC_NLED_ISINK3:
-					button_flag_isink3 = 1;
+					button_flag_isink0 = 1;
 					break;
 				default:
+					
 					break;
 				}
 				button_flag = true;

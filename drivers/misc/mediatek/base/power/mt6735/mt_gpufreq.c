@@ -1638,7 +1638,6 @@ int mt_gpufreq_voltage_enable_set(unsigned int enable)
 		ret = _mt_gpufreq_set_cur_volt(g_cur_gpu_OPPidx);
 
 		if (ret) {
-			unsigned int cur_freq = _mt_gpufreq_get_cur_freq();
 
 			gpufreq_err("@%s: Set Vcore to %dmV failed! ret = 0x%x, cur_freq = %d\n",
 					__func__,

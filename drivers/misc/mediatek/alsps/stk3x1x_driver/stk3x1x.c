@@ -52,31 +52,27 @@
 #include <linux/i2c.h>
 #include <linux/slab.h>
 #include <linux/irq.h>
-#include <linux/gpio.h>
 #include <linux/miscdevice.h>
 #include <asm/uaccess.h>
 #include <linux/delay.h>
 #include <linux/input.h>
 #include <linux/workqueue.h>
 #include <linux/kobject.h>
+#include <linux/earlysuspend.h>
 #include <linux/platform_device.h>
 #include <asm/atomic.h>
+#include <linux/version.h>
+#include <linux/fs.h>   
+#include <linux/wakelock.h> 
 #include <asm/io.h>
-#include "cust_alsps.h"
-#include <linux/sched.h>
-#include <alsps.h>
-#include <linux/of.h>
-#include <linux/of_address.h>
-#include <linux/of_irq.h>
-#include <alsps.h>
-#ifdef CUSTOM_KERNEL_SENSORHUB
-#include <SCP_sensorHub.h>
-#endif
+#include <linux/module.h>
 
-#include <alsps.h>
-#ifdef CUSTOM_KERNEL_SENSORHUB
-#include <SCP_sensorHub.h>
-#endif
+#include <linux/hwmsen_helper.h>
+#include <cust_eint.h>
+#include <linux/hwmsensor.h>
+#include <linux/sensors_io.h>
+#include <linux/hwmsen_dev.h>
+#include "stk_cust_alsps.h"
 #include "stk3x1x.h"
 #define DRIVER_VERSION          "3.5.2"
 //#define STK_PS_POLLING_LOG

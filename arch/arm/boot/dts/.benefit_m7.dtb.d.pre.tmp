@@ -1,0 +1,7 @@
+benefit_m7.o: arch/arm/boot/dts/benefit_m7.dts \
+ arch/arm/boot/dts/mt6735m.dtsi \
+ arch/arm/boot/dts/include/dt-bindings/interrupt-controller/arm-gic.h \
+ arch/arm/boot/dts/include/dt-bindings/interrupt-controller/irq.h \
+ arch/arm/boot/dts/mt6735m-pinfunc.h arch/arm/boot/dts/mt65xx.h \
+ arch/arm/boot/dts/include/dt-bindings/mmc/mt67xx-msdc.h \
+ arch/arm/boot/dts/cust.dtsi arch/arm/boot/dts/trusty.dtsi

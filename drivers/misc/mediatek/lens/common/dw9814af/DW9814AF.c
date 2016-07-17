@@ -12,7 +12,7 @@
 
 
 #define AF_DRVNAME "DW9814AF_DRV"
-#define AF_I2C_SLAVE_ADDR        0x18
+#define AF_I2C_SLAVE_ADDR        0x1c
 
 #define AF_DEBUG
 #ifdef AF_DEBUG

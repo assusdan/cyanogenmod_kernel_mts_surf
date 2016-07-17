@@ -1,9 +1,3 @@
-
 config MTK_STK3X1X_DRIVER
-	bool "MTK_STK3X1X_DRIVER for MediaTek package"
+	bool "STK3X1X for MediaTek package"
 	default n
-	help
-	It support different type sensor
-	in this platform. If this option
-	is set, it will support ambient
-	and light sensor MTK_STK3X1X_DRIVER.

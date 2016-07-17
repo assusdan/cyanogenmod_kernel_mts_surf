@@ -48,30 +48,33 @@
  *
  */
 
+
 #include <linux/interrupt.h>
 #include <linux/i2c.h>
 #include <linux/slab.h>
 #include <linux/irq.h>
 #include <linux/miscdevice.h>
-#include <asm/uaccess.h>
+#include <linux/uaccess.h>
 #include <linux/delay.h>
 #include <linux/input.h>
 #include <linux/workqueue.h>
 #include <linux/kobject.h>
-#include <linux/earlysuspend.h>
 #include <linux/platform_device.h>
-#include <asm/atomic.h>
-#include <linux/version.h>
-#include <linux/fs.h>   
-#include <linux/wakelock.h> 
-#include <asm/io.h>
-#include <linux/module.h>
+#include <linux/atomic.h>
 
-#include <linux/hwmsen_helper.h>
-#include <cust_eint.h>
-#include <linux/hwmsensor.h>
-#include <linux/sensors_io.h>
-#include <linux/hwmsen_dev.h>
+#include <linux/io.h>
+#include "upmu_sw.h"
+#include "upmu_common.h"
+#include <linux/gpio.h>
+#include <linux/of_irq.h>
+
+#include <linux/wakelock.h>
+#include <linux/sched.h>
+
+#include <alsps.h>
+#ifdef CUSTOM_KERNEL_SENSORHUB
+#include <SCP_sensorHub.h>
+#endif
 #include "stk_cust_alsps.h"
 #include "stk3x1x.h"
 #define DRIVER_VERSION          "3.5.2"
@@ -82,63 +85,10 @@
 //#define STK_IRS
 //#define STK_CHK_REG
 //#define STK_GES
-#ifdef CONFIG_POCKETMOD
-#include <linux/pocket_mod.h>
-#endif
 /////
 extern struct alsps_hw* stk_get_cust_alsps_hw(void);
 
 #include <alsps.h>
-
-
-#ifdef MT6516
-	#include <mach/mt6516_devs.h>
-	#include <mach/mt6516_typedefs.h>
-	#include <mach/mt6516_gpio.h>
-	#include <mach/mt6516_pll.h>
-#elif defined MT6573
-	#include <mach/mt6573_devs.h>
-	#include <mach/mt6573_typedefs.h>
-	#include <mach/mt6573_gpio.h>
-	#include <mach/mt6573_pll.h>
-//#elif defined MT6575
-	// #include <mach/mt6575_devs.h>
-	// #include <mach/mt6575_typedefs.h>
-	// #include <mach/mt6575_gpio.h>
-	// #include <mach/mt6575_pm_ldo.h>
-#elif defined MT6577
-	#include <mach/mt6577_devs.h>
-	#include <mach/mt6577_typedefs.h>
-	#include <mach/mt6577_gpio.h>
-	#include <mach/mt6577_pm_ldo.h>
-
-#else
-	//#include <mach/mt_devs.h>
-	#include <mach/mt_typedefs.h>
-	#include <mach/mt_gpio.h>
-	#include <mach/mt_pm_ldo.h>
-#endif
-
-#if ((defined MT6573) || (defined MT6575) || (defined MT6577) || (defined MT6589)  || (defined MT6572))	
-extern void mt65xx_eint_unmask(unsigned int line);
-extern void mt65xx_eint_mask(unsigned int line);
-extern void mt65xx_eint_set_polarity(kal_uint8 eintno, kal_bool ACT_Polarity);
-extern void mt65xx_eint_set_hw_debounce(kal_uint8 eintno, kal_uint32 ms);
-extern kal_uint32 mt65xx_eint_set_sens(kal_uint8 eintno, kal_bool sens);
-extern void mt65xx_eint_registration(kal_uint8 eintno, kal_bool Dbounce_En,
-                                     kal_bool ACT_Polarity, void (EINT_FUNC_PTR)(void),
-                                     kal_bool auto_umask);
-#else
-    #include <mach/eint.h>
-	// extern void mt_eint_mask(unsigned int eint_num);
-	// extern void mt_eint_unmask(unsigned int eint_num);
-	// extern void mt_eint_set_hw_debounce(unsigned int eint_num, unsigned int ms);
-	// extern void mt_eint_set_polarity(unsigned int eint_num, unsigned int pol);
-	// extern unsigned int mt_eint_set_sens(unsigned int eint_num, unsigned int sens);
-	// extern void mt_eint_registration(unsigned int eint_num, unsigned int flow, void (EINT_FUNC_PTR)(void), unsigned int is_auto_umask);
-	// extern void mt_eint_print_status(void);
-#endif
-
 
 #ifdef MT6516
 	#define POWER_NONE_MACRO MT6516_POWER_NONE

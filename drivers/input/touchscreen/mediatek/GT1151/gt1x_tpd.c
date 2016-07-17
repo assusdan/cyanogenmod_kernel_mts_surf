@@ -543,9 +543,7 @@ static int tpd_registration(void *client)
 			input_set_capability(tpd->dev, EV_KEY, tpd_dts_data.tpd_key_local[idx]);
 	}
 
-#ifdef CONFIG_GTP_GESTURE_WAKEUP
-	input_set_capability(tpd->dev, EV_KEY, KEY_GESTURE);
-#endif
+
 
 	GTP_GPIO_AS_INT(GTP_INT_PORT);
 
@@ -622,70 +620,33 @@ static irqreturn_t tpd_eint_interrupt_handler(unsigned irq, struct irq_desc *des
 static int tpd_history_x, tpd_history_y;
 void gt1x_touch_down(s32 x, s32 y, s32 size, s32 id)
 {
-#ifdef CONFIG_GTP_CHANGE_X2Y
-	GTP_SWAP(x, y);
-#endif
-#ifdef CONFIG_CUSTOM_LCM_X
-	unsigned long lcm_x = 0, lcm_y = 0;
-	int ret;
-#endif
-#ifdef CONFIG_GTP_ICS_SLOT_REPORT
-	input_mt_slot(tpd->dev, id);
-	input_report_abs(tpd->dev, ABS_MT_PRESSURE, size);
-	input_report_abs(tpd->dev, ABS_MT_TOUCH_MAJOR, size);
-	input_report_abs(tpd->dev, ABS_MT_TRACKING_ID, id);
-	input_report_abs(tpd->dev, ABS_MT_POSITION_X, x);
-	input_report_abs(tpd->dev, ABS_MT_POSITION_Y, y);
-#else
-	input_report_key(tpd->dev, BTN_TOUCH, 1);
-	if ((!size) && (!id)) {
-		/* for virtual button */
-		input_report_abs(tpd->dev, ABS_MT_PRESSURE, 100);
-		input_report_abs(tpd->dev, ABS_MT_TOUCH_MAJOR, 100);
-	} else {
-		input_report_abs(tpd->dev, ABS_MT_PRESSURE, size);
-		input_report_abs(tpd->dev, ABS_MT_TOUCH_MAJOR, size);
-		input_report_abs(tpd->dev, ABS_MT_TRACKING_ID, id);
-	}
-#ifdef CONFIG_CUSTOM_LCM_X
-	ret = kstrtoul(CONFIG_CUSTOM_LCM_X, 0, &lcm_x);
-	if (ret)
-		GTP_ERROR("Touch down get lcm_x failed");
-	ret = kstrtoul(CONFIG_CUSTOM_LCM_Y, 0, &lcm_y);
-	if (ret)
-		GTP_ERROR("Touch down get lcm_y failed");
+//-================================================================
+    if ((!size) && (!id))
+    {
+        input_report_abs(tpd->dev, ABS_MT_PRESSURE, 100);
+        input_report_abs(tpd->dev, ABS_MT_TOUCH_MAJOR, 100);
+    }
+    else
+    {
+        input_report_abs(tpd->dev, ABS_MT_PRESSURE, size);
+        input_report_abs(tpd->dev, ABS_MT_TOUCH_MAJOR, size);
+        /* track id Start 0 */
+        input_report_abs(tpd->dev, ABS_MT_TRACKING_ID, id);
+    }
 
-	if (x < lcm_x)
-		x = 0;
-	else
-		x = x - lcm_x;
-	if (y < lcm_y)
-		y = 0;
-	else
-		y = y - lcm_y;
+    input_report_key(tpd->dev, BTN_TOUCH, 1);
+    input_report_abs(tpd->dev, ABS_MT_POSITION_X, x);
+    input_report_abs(tpd->dev, ABS_MT_POSITION_Y, y);
+    input_mt_sync(tpd->dev);
+    TPD_EM_PRINT(x, y, x, y, id, 1);
 
-	GTP_DEBUG("x:%d, y:%d, lcm_x:%lu, lcm_y:%lu", x, y, lcm_x, lcm_y);
+//================================================================
 
-#endif
-	input_report_abs(tpd->dev, ABS_MT_POSITION_X, x);
-	input_report_abs(tpd->dev, ABS_MT_POSITION_Y, y);
-	input_mt_sync(tpd->dev);
-#endif
-	TPD_DEBUG_SET_TIME;
-	TPD_EM_PRINT(x, y, x, y, id, 1);
-	tpd_history_x = x;
-	tpd_history_y = y;
-#ifdef CONFIG_MTK_BOOT
-	if (tpd_dts_data.use_tpd_button) {
-		if (FACTORY_BOOT == get_boot_mode() || RECOVERY_BOOT == get_boot_mode())
-			tpd_button(x, y, 1);
-	}
-#endif
 }
 
 void gt1x_touch_up(s32 id)
 {
-#ifdef CONFIG_GTP_ICS_SLOT_REPORT
+/* #ifdef CONFIG_GTP_ICS_SLOT_REPORT
 	input_mt_slot(tpd->dev, id);
 	input_report_abs(tpd->dev, ABS_MT_TRACKING_ID, -1);
 #else
@@ -701,7 +662,12 @@ void gt1x_touch_up(s32 id)
 		if (FACTORY_BOOT == get_boot_mode() || RECOVERY_BOOT == get_boot_mode())
 			tpd_button(0, 0, 0);
 	}
-#endif
+#endif */
+
+    input_report_key(tpd->dev, BTN_TOUCH, 0);
+    input_mt_sync(tpd->dev);
+    TPD_EM_PRINT(tpd_history_x, tpd_history_y, tpd_history_x, tpd_history_y, id, 0);
+
 }
 
 #ifdef CONFIG_GTP_CHARGER_SWITCH
@@ -742,14 +708,7 @@ static int tpd_event_handler(void *unused)
 		mutex_lock(&i2c_access);
 		/* don't reset before "if (tpd_halt..."  */
 
-#ifdef CONFIG_GTP_GESTURE_WAKEUP
-		ret = gesture_event_handler(tpd->dev);
-		if (ret >= 0) {
-			gt1x_irq_enable();
-			mutex_unlock(&i2c_access);
-			continue;
-		}
-#endif
+
 		if (tpd_halt) {
 			mutex_unlock(&i2c_access);
 			GTP_DEBUG("return for interrupt after suspend...  ");
@@ -975,120 +934,98 @@ static int tpd_local_init(void)
 }
 
 /* Function to manage low power suspend */
-static void tpd_suspend(struct device *h)
-{/*
-	s32 ret = -1;
-#if defined(CONFIG_GTP_HOTKNOT)
-#ifndef CONFIG_HOTKNOT_BLOCK_RW
-	u8 buf[1] = { 0 };
-#endif
-#endif
-	GTP_INFO("TPD suspend start...");
+static void tpd_suspend(struct early_suspend *h)
+{
+    s32 ret = -1;
 
-#ifdef CONFIG_GTP_PROXIMITY
-	if (gt1x_proximity_flag == 1) {
-		GTP_INFO("Suspend: proximity is detected!");
-		return;
-	}
+    GTP_INFO("System suspend.");
+
+#ifdef TPD_PROXIMITY
+
+    if (tpd_proximity_flag == 1)
+    {
+    	tpd_proximity_flag_one = 1;	//jeff add 20150317
+        return ;
+    }
+
 #endif
 
-#ifdef CONFIG_GTP_HOTKNOT
-	if (hotknot_enabled) {
-#ifdef CONFIG_HOTKNOT_BLOCK_RW
-		if (hotknot_paired_flag) {
-			GTP_INFO("Suspend: hotknot is paired!");
-			return;
-		}
+    tpd_halt = 1;
+#if GTP_ESD_PROTECT
+    gtp_esd_switch(i2c_client_point, SWITCH_OFF);
+#endif
+    
+#if GTP_GESTURE_WAKEUP
+    ret = gtp_enter_doze(i2c_client_point);
 #else
-		gt1x_i2c_read(GTP_REG_HN_PAIRED, buf, sizeof(buf));
-		GTP_DEBUG("0x81AA: 0x%02X", buf[0]);
-		if (buf[0] == 0x55) {
-			GTP_INFO("Suspend: hotknot is paired!");
-			return;
-		}
+    //mt_eint_mask(CUST_EINT_TOUCH_NUM);
+	gt1x_irq_disable();
+    ret = gt1x_enter_sleep();
 #endif
-	}
-#endif
-	tpd_halt = 1;
-
-#ifdef CONFIG_GTP_ESD_PROTECT
-	gt1x_esd_switch(SWITCH_OFF);
-#endif
-
-#ifdef CONFIG_GTP_CHARGER_SWITCH
-	gt1x_charger_switch(SWITCH_OFF);
-#endif
-
-	mutex_lock(&i2c_access);
-
-#ifdef CONFIG_GTP_GESTURE_WAKEUP
-	gesture_clear_wakeup_data();
-	if (gesture_enabled) {
-		gesture_enter_doze();
-	} else
-#endif
-	{
-		gt1x_irq_disable();
-		ret = gt1x_enter_sleep();
-		if (ret < 0)
-			GTP_ERROR("GTP early suspend failed.");
-		else
-			gtp_suspend = true;
-	}
-
-	mutex_unlock(&i2c_access);
-	msleep(58);
-	*/
+    if (ret < 0)
+    {
+        GTP_ERROR("GTP early suspend failed.");
+    }
+    // to avoid waking up while not sleeping, delay 48 + 10ms to ensure reliability 
+    msleep(58);
 }
 
 /* Function to manage power-on resume */
-static void tpd_resume(struct device *h)
+static void tpd_resume(struct early_suspend *h)
 {
-/*	s32 ret = -1;
+    s32 ret = -1;
 
-	GTP_INFO("TPD resume start...");
-	gtp_suspend = false;
+    GTP_INFO("System resume.");
+    
+#ifdef TPD_PROXIMITY
 
-#ifdef CONFIG_GTP_PROXIMITY
-	if (gt1x_proximity_flag == 1) {
-		GTP_INFO("Resume: proximity is on!");
+    if (tpd_proximity_flag == 1)
+    {
+//        return ;
+	//jeff modify 20150317
+	if(tpd_proximity_flag_one == 1)
+	{
+		tpd_proximity_flag_one = 0;	
+		GTP_INFO(TPD_DEVICE " tpd_proximity_flag_one \n"); 
 		return;
 	}
+    }
+
+#endif
+    ret = gt1x_wakeup_sleep();
+
+    if (ret < 0)
+    {
+        GTP_ERROR("GTP later resume failed.");
+    }
+    
+#if GTP_COMPATIBLE_MODE
+    if (CHIP_TYPE_GT9F == gtp_chip_type)
+    {
+        // do nothing
+    }
+    else
+#endif
+    {
+        gt1x_send_cmd(GTP_CMD_HN_EXIT_SLAVE, 0);
+    }
+    
+#if GTP_CHARGER_SWITCH
+    gt1x_charger_switch(1);  // force update
 #endif
 
-#ifdef CONFIG_GTP_HOTKNOT
-	if (hotknot_enabled) {
-#ifdef CONFIG_HOTKNOT_BLOCK_RW
-		if (hotknot_paired_flag) {
-			hotknot_paired_flag = 0;
-			GTP_INFO("Resume: hotknot is paired!");
-			return;
-		}
-#endif
-	}
+    tpd_halt = 0;
+#if GTP_GESTURE_WAKEUP
+    doze_status = DOZE_DISABLED;
+#else 
+    //mt_eint_unmask(CUST_EINT_TOUCH_NUM);
+    gt1x_irq_enable();
 #endif
 
-	ret = gt1x_wakeup_sleep();
-	if (ret < 0)
-		GTP_ERROR("GTP later resume failed.");
-#ifdef CONFIG_GTP_HOTKNOT
-	if (!hotknot_enabled)
-		gt1x_send_cmd(GTP_CMD_HN_EXIT_SLAVE, 0);
+#if GTP_ESD_PROTECT
+   gt1x_esd_switch(SWITCH_ON);
 #endif
 
-#ifdef CONFIG_GTP_CHARGER_SWITCH
-	gt1x_charger_config(0);
-	gt1x_charger_switch(SWITCH_ON);
-#endif
-
-	tpd_halt = 0;
-	gt1x_irq_enable();
-
-#ifdef CONFIG_GTP_ESD_PROTECT
-	gt1x_esd_switch(SWITCH_ON);
-#endif
-*/
-	GTP_DEBUG("tpd resume end.");
 }
 
 static struct tpd_driver_t tpd_device_driver = {

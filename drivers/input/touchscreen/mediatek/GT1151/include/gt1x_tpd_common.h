@@ -65,7 +65,7 @@
 #define TPD_MAX_RESET_COUNT           3
 #define TPD_HAVE_CALIBRATION
 #define TPD_CALIBRATION_MATRIX        {962, 0, 0, 0, 1600, 0, 0, 0}
-#define KEY_GESTURE           KEY_F24	/* customize gesture-key */
+//#define KEY_GESTURE           KEY_F24	/* customize gesture-key */
 
 extern int tpd_em_log;
 
@@ -109,8 +109,8 @@ extern int tpd_em_log;
 #define GTP_REG_HAVE_KEY                0x8057
 #define GTP_REG_HN_STATE                0x8800
 
-#define GTP_REG_WAKEUP_GESTURE         0x814C
-#define GTP_REG_WAKEUP_GESTURE_DETAIL  0xA2A0	/*need change */
+//#define GTP_REG_WAKEUP_GESTURE         0x814C
+//#define GTP_REG_WAKEUP_GESTURE_DETAIL  0xA2A0	/*need change */
 
 #define GTP_BAK_REF_PATH                "/data/gt1x_ref.bin"
 #define GTP_MAIN_CLK_PATH               "/data/gt1x_clk.bin"
@@ -154,7 +154,7 @@ extern int tpd_em_log;
 #define GTP_CMD_SLEEP               0x05
 #define GTP_CMD_CHARGER_ON          0x06
 #define GTP_CMD_CHARGER_OFF         0x07
-#define GTP_CMD_GESTURE_WAKEUP      0x08
+//#define GTP_CMD_GESTURE_WAKEUP      0x08
 #define GTP_CMD_CLEAR_CFG           0x10
 #define GTP_CMD_ESD                 0xAA
 #define GTP_CMD_HN_TRANSFER         0x22
@@ -231,7 +231,6 @@ struct gt1x_version_info {
 typedef enum {
 	DOZE_DISABLED = 0,
 	DOZE_ENABLED = 1,
-	DOZE_WAKEUP = 2,
 } DOZE_T;
 
 typedef enum {
@@ -421,3 +420,4 @@ extern struct tpd_filter_t tpd_filter;
 extern wait_queue_head_t init_waiter;
 
 #endif /* GT1X_TPD_COMMON_H__ */
+

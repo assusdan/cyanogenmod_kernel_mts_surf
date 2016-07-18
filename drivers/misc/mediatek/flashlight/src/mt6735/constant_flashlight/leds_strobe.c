@@ -80,183 +80,17 @@ static struct work_struct workTimeOut;
 #include <mt-plat/mt_gpio.h>
 #include "../../../../ssw/inc/ssw.h"
 
-static int g_bLtVersion;
 
 /*****************************************************************************
 Functions
 *****************************************************************************/
 static void work_timeOutFunc(struct work_struct *data);
 
-static struct i2c_client *LM3642_i2c_client;
 
 
 
 
-struct LM3642_platform_data {
-	u8 torch_pin_enable;	/* 1:  TX1/TORCH pin isa hardware TORCH enable */
-	u8 pam_sync_pin_enable;	/* 1:  TX2 Mode The ENVM/TX2 is a PAM Sync. on input */
-	u8 thermal_comp_mode_enable;	/* 1: LEDI/NTC pin in Thermal Comparator Mode */
-	u8 strobe_pin_disable;	/* 1 : STROBE Input disabled */
-	u8 vout_mode_enable;	/* 1 : Voltage Out Mode enable */
-};
 
-struct LM3642_chip_data {
-	struct i2c_client *client;
-
-	/* struct led_classdev cdev_flash; */
-	/* struct led_classdev cdev_torch; */
-	/* struct led_classdev cdev_indicator; */
-
-	struct LM3642_platform_data *pdata;
-	struct mutex lock;
-
-	u8 last_flag;
-	u8 no_pdata;
-};
-
-static int LM3642_write_reg(struct i2c_client *client, u8 reg, u8 val)
-{
-	int ret = 0;
-	struct LM3642_chip_data *chip = i2c_get_clientdata(client);
-
-	mutex_lock(&chip->lock);
-	ret = i2c_smbus_write_byte_data(client, reg, val);
-	mutex_unlock(&chip->lock);
-
-	if (ret < 0)
-		PK_DBG("failed writing at 0x%02x\n", reg);
-	return ret;
-}
-
-static int LM3642_read_reg(struct i2c_client *client, u8 reg)
-{
-	int val = 0;
-	struct LM3642_chip_data *chip = i2c_get_clientdata(client);
-
-	mutex_lock(&chip->lock);
-	val = i2c_smbus_read_byte_data(client, reg);
-	mutex_unlock(&chip->lock);
-
-
-	return val;
-}
-
-
-
-
-static int LM3642_chip_init(struct LM3642_chip_data *chip)
-{
-
-
-	return 0;
-}
-
-static int LM3642_probe(struct i2c_client *client, const struct i2c_device_id *id)
-{
-	struct LM3642_chip_data *chip;
-	struct LM3642_platform_data *pdata = client->dev.platform_data;
-
-	int err = -1;
-
-	PK_DBG("LM3642_probe start--->.\n");
-
-	if (!i2c_check_functionality(client->adapter, I2C_FUNC_I2C)) {
-		err = -ENODEV;
-		PK_DBG("LM3642 i2c functionality check fail.\n");
-		return err;
-	}
-
-	chip = kzalloc(sizeof(struct LM3642_chip_data), GFP_KERNEL);
-	chip->client = client;
-
-	mutex_init(&chip->lock);
-	i2c_set_clientdata(client, chip);
-
-	if (pdata == NULL) {	/* values are set to Zero. */
-		PK_DBG("LM3642 Platform data does not exist\n");
-		pdata = kzalloc(sizeof(struct LM3642_platform_data), GFP_KERNEL);
-		chip->pdata = pdata;
-		chip->no_pdata = 1;
-	}
-
-	chip->pdata = pdata;
-	if (LM3642_chip_init(chip) < 0)
-		goto err_chip_init;
-
-	LM3642_i2c_client = client;
-	PK_DBG("LM3642 Initializing is done\n");
-
-	return 0;
-
-err_chip_init:
-	i2c_set_clientdata(client, NULL);
-	kfree(chip);
-	PK_DBG("LM3642 probe is failed\n");
-	return -ENODEV;
-}
-
-static int LM3642_remove(struct i2c_client *client)
-{
-	struct LM3642_chip_data *chip = i2c_get_clientdata(client);
-
-	if (chip->no_pdata)
-		kfree(chip->pdata);
-	kfree(chip);
-	return 0;
-}
-
-
-#define LM3642_NAME "leds-LM3642"
-static const struct i2c_device_id LM3642_id[] = {
-	{LM3642_NAME, 0},
-	{}
-};
-
-#ifdef CONFIG_OF
-static const struct of_device_id LM3642_of_match[] = {
-	{.compatible = "mediatek,strobe_main"},
-	{},
-};
-#endif
-
-static struct i2c_driver LM3642_i2c_driver = {
-	.driver = {
-		   .name = LM3642_NAME,
-#ifdef CONFIG_OF
-		   .of_match_table = LM3642_of_match,
-#endif
-		   },
-	.probe = LM3642_probe,
-	.remove = LM3642_remove,
-	.id_table = LM3642_id,
-};
-static int __init LM3642_init(void)
-{
-	PK_DBG("LM3642_init\n");
-	return i2c_add_driver(&LM3642_i2c_driver);
-}
-
-static void __exit LM3642_exit(void)
-{
-	i2c_del_driver(&LM3642_i2c_driver);
-}
-
-
-module_init(LM3642_init);
-module_exit(LM3642_exit);
-
-MODULE_DESCRIPTION("Flash driver for LM3642");
-MODULE_AUTHOR("pw <pengwei@mediatek.com>");
-MODULE_LICENSE("GPL v2");
-
-int readReg(int reg)
-{
-
-	int val;
-
-	val = LM3642_read_reg(LM3642_i2c_client, reg);
-	return (int)val;
-}
 
 int FL_Enable(void)
 {
@@ -289,54 +123,7 @@ int FL_dim_duty(kal_uint32 duty)
 
 int FL_Init(void)
 {
-	int regVal0;
-	char buf[2];
 
-	buf[0] = 0xa;
-	buf[1] = 0x0;
-	/* iWriteRegI2C(buf , 2, STROBE_DEVICE_ID); */
-	LM3642_write_reg(LM3642_i2c_client, buf[0], buf[1]);
-
-	buf[0] = 0x8;
-	buf[1] = 0x47;
-	/* iWriteRegI2C(buf , 2, STROBE_DEVICE_ID); */
-	LM3642_write_reg(LM3642_i2c_client, buf[0], buf[1]);
-
-	buf[0] = 9;
-	buf[1] = 0x35;
-	/* iWriteRegI2C(buf , 2, STROBE_DEVICE_ID); */
-	LM3642_write_reg(LM3642_i2c_client, buf[0], buf[1]);
-
-
-
-
-	/* static int LM3642_read_reg(struct i2c_client *client, u8 reg) */
-	/* regVal0 = readReg(0); */
-	regVal0 = LM3642_read_reg(LM3642_i2c_client, 0);
-
-	if (regVal0 == 1)
-		g_bLtVersion = 1;
-	else
-		g_bLtVersion = 0;
-
-
-	PK_DBG(" FL_Init regVal0=%d isLtVer=%d\n", regVal0, g_bLtVersion);
-
-
-/*
-	if(mt_set_gpio_mode(FLASH_GPIO_ENT,GPIO_MODE_00)){PK_DBG("[constant_flashlight] set gpio mode failed!!\n");}
-    if(mt_set_gpio_dir(FLASH_GPIO_ENT,GPIO_DIR_OUT)){PK_DBG("[constant_flashlight] set gpio dir failed!!\n");}
-    if(mt_set_gpio_out(FLASH_GPIO_ENT,GPIO_OUT_ZERO)){PK_DBG("[constant_flashlight] set gpio failed!!\n");}
-
-	if(mt_set_gpio_mode(FLASH_GPIO_ENF,GPIO_MODE_00)){PK_DBG("[constant_flashlight] set gpio mode failed!!\n");}
-    if(mt_set_gpio_dir(FLASH_GPIO_ENF,GPIO_DIR_OUT)){PK_DBG("[constant_flashlight] set gpio dir failed!!\n");}
-    if(mt_set_gpio_out(FLASH_GPIO_ENF,GPIO_OUT_ZERO)){PK_DBG("[constant_flashlight] set gpio failed!!\n");}
-    */
-
-
-
-
-/*	PK_DBG(" FL_Init line=%d\n", __LINE__); */
 	return 0;
 }
 

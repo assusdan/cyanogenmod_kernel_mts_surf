@@ -33,13 +33,13 @@
 
 /* Pre-defined definition */
 
-#define TPD_KEY_COUNT   4
+#define TPD_KEY_COUNT   3
 /*#define key_1           60, 850
 #define key_2           180, 850
 #define key_3           300, 850
 #define key_4           420, 850
 */
-#define TPD_KEYS        {KEY_BACK, KEY_HOME, KEY_MENU, KEY_SEARCH}
+#define TPD_KEYS        {KEY_BACK, KEY_HOMEPAGE, KEY_MENU}
 /*#define TPD_KEYS_DIM    {{key_1, 50, 30}, {key_2, 50, 30}, {key_3, 50, 30}, {key_4, 50, 30} }*/
 #define TPD_KEYS_DIM    {{60, 850, 50, 30}, {180, 850, 50, 30}, {300, 850, 50, 30}, {420, 850, 50, 30} }
 
@@ -80,9 +80,9 @@ extern int i2c_write_bytes(struct i2c_client *client, u16 addr, u8 *txbuf, int l
 extern int i2c_read_bytes(struct i2c_client *client, u16 addr, u8 *rxbuf, int len);
 
 /* ***************************PART1:ON/OFF define******************************* */
-#define GTP_CUSTOM_CFG        1
-#define GTP_DRIVER_SEND_CFG   1	/* driver send config to TP on intilization (for no config built in TP flash) */
-#define GTP_HAVE_TOUCH_KEY    0
+#define GTP_CUSTOM_CFG        0
+#define GTP_DRIVER_SEND_CFG   0	/* driver send config to TP on intilization (for no config built in TP flash) */
+#define GTP_HAVE_TOUCH_KEY    1
 #define GTP_POWER_CTRL_SLEEP  1	/* turn off power on suspend */
 #define GTP_AUTO_UPDATE       0	/* update FW to TP FLASH */
 #define GTP_CHANGE_X2Y        0	/* set for se1 */
@@ -93,11 +93,11 @@ extern int i2c_read_bytes(struct i2c_client *client, u16 addr, u8 *rxbuf, int le
 /* #define GTP_CHARGER_DETECT */
 
 /* #define TPD_PROXIMITY */
-/* #define TPD_HAVE_BUTTON               //report key as coordinate,Vibration feedback */
+#define TPD_HAVE_BUTTON               //report key as coordinate,Vibration feedback */
 /* #define TPD_WARP_X */
 /* #define TPD_WARP_Y */
 
-#define GTP_DEBUG_ON          1
+#define GTP_DEBUG_ON          0
 #define GTP_DEBUG_ARRAY_ON    0
 #define GTP_DEBUG_FUNC_ON     0
 
@@ -223,10 +223,12 @@ a sample config, send this config should cause the chip cannot work normally*/
 #define VELOCITY_CUSTOM
 #define TPD_VELOCITY_CUSTOM_X 20
 #define TPD_VELOCITY_CUSTOM_Y 20
-
+#define TPD_CALIBRATION_MATRIX_ROTATION_NORMAL {0, -6553, 10485760, -2560, 0, 6553600, 0, 0}
+#define TPD_CALIBRATION_MATRIX_ROTATION_FACTORY {0, -6553, 10485760, -2560, 0, 6553600, 0, 0}
+#define GTP_KEY_MAP_ARRAY	 {KEY_MENU, KEY_HOME, KEY_BACK, KEY_SEND}
 /* STEP_4(optional):If this project have touch key,Set touch key config. */
 #if GTP_HAVE_TOUCH_KEY
-#define GTP_KEY_TAB	 {KEY_MENU, KEY_HOME, KEY_BACK, KEY_SEND}
+#define GTP_KEY_TAB	 {KEY_MENU, KEY_HOMEPAGE, KEY_BACK}
 #endif
 
 extern unsigned int touch_irq;
@@ -270,12 +272,8 @@ extern s32 gtp_send_cfg(struct i2c_client *client);
 #define I2C_MASTER_CLOCK              400
 #define MAX_I2C_TRANSFER_SIZE         (MAX_TRANSACTION_LENGTH - GTP_ADDR_LENGTH)
 #define TPD_MAX_RESET_COUNT           3
-/* #define TPD_CALIBRATION_MATRIX        {962,0,0,0,1600,0,0,0}; */
-/* #define TPD_CALIBRATION_MATRIX_ROTATION_NORMAL  {-6557,0,5238784,0,-2559,3272704,0,0}; */
-/*#define TPD_CALIBRATION_MATRIX_ROTATION_NORMAL {0, 2559, 0, -6557, 0, 5238784, 0, 0};
-#define TPD_CALIBRATION_MATRIX_ROTATION_FACTORY {0, 2559, 0, -6557, 0, 5238784, 0, 0};*/
-#define TPD_CALIBRATION_MATRIX_ROTATION_NORMAL {0, -6553, 10485760, -2560, 0, 6553600, 0, 0}
-#define TPD_CALIBRATION_MATRIX_ROTATION_FACTORY {0, -6553, 10485760, -2560, 0, 6553600, 0, 0}
+#define TPD_CALIBRATION_MATRIX        {962,0,0,0,1600,0,0,0}; */
+
 
 #define TPD_RESET_ISSUE_WORKAROUND
 #define TPD_HAVE_CALIBRATION

@@ -399,6 +399,7 @@ extern void gt1x_ps_init(void);
 extern int gt1x_prox_event_handler(u8 *data);
 #endif
 
+#define CONFIG_GTP_ESD_PROTECT
 #ifdef CONFIG_GTP_ESD_PROTECT
 extern void gt1x_init_esd_protect(void);
 extern void gt1x_deinit_esd_protect(void);

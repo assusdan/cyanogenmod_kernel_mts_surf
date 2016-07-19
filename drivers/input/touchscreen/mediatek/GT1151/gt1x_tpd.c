@@ -977,21 +977,19 @@ static int tpd_local_init(void)
 /* Function to manage low power suspend */
 static void tpd_suspend(struct device *h)
 {
-
+	gt1x_esd_switch(SWITCH_OFF);
+	mutex_lock(&i2c_access);
 	gt1x_irq_disable();
-	//tpd_off();
-
-	
+	mutex_unlock(&i2c_access);
+	gtp_suspend = true;
 }
 
 /* Function to manage power-on resume */
 static void tpd_resume(struct device *h)
 {
-//  tpd_on();
+	gtp_suspend = false;
 	gt1x_irq_enable();
-//  tpd_halt = 0;
-
-
+	gt1x_esd_switch(SWITCH_ON);
 }
 
 static struct tpd_driver_t tpd_device_driver = {

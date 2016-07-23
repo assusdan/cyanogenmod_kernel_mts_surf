@@ -8,4 +8,28 @@ cd kernel_mm
 # setup kernel_mm/build-rom.sh path to toolchain
 . build-rom.sh
 
+Work :
 
+LCM :
+JD9367
+
+Touchscreen:
+b_gt9xx_hotknot
+
+Accelemometer:
+MC3XXX
+
+Camers:
+MAIN: imx164
+
+AF:
+DW9714AF 
+FM50AF
+
+Headset detect - partially
+
+lcd-backlight - regulator partially working
+
+ALSPS:
+EPL2182 - WiP
+STK3x1x - BUGGLESS

@@ -204,7 +204,7 @@ unsigned int one_line_pulse_set_backlight(int level, int div)
     }
     else
     {
-        bl_level = level / BACKLIGHT_LEVEL_COUNT + 1;
+        bl_level = level;
     }
  
     pulse_num = (BACKLIGHT_LEVEL_COUNT + pre_level - bl_level) % BACKLIGHT_LEVEL_COUNT;

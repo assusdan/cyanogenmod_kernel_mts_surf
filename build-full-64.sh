@@ -10,11 +10,11 @@ mkdir tools/tools
 
 echo "Export toolchains >>>"
 
-export ARCH=arm CROSS_COMPILE=../linaro_5.2_arm/bin/arm-cortex-linux-gnueabi-
+export ARCH=arm64 CROSS_COMPILE=../*linaro-5.3*/bin/aarch64-linux-gnu-
 
 echo "Make defconfig >>>"
 
-make benefit_m7_defconfig
+make benefit_m7_64_defconfig
 
 echo "Start build >>>"
 

@@ -130,11 +130,26 @@ struct SENSOR_DATA {
 #define MMC31XX_IOC_RRM					_IO(MSENSOR, 0x26)
 
 /* IOCTLs for akm09911 device */
-#define ECS_IOCTL_GET_INFO			_IOR(MSENSOR, 0x27, unsigned char[AKM_SENSOR_INFO_SIZE])
-#define ECS_IOCTL_GET_CONF			_IOR(MSENSOR, 0x28, unsigned char[AKM_SENSOR_CONF_SIZE])
-#define ECS_IOCTL_SET_YPR_09911               _IOW(MSENSOR, 0x29, int[26])
-#define ECS_IOCTL_GET_DELAY_09911             _IOR(MSENSOR, 0x30, int64_t[3])
-#define	ECS_IOCTL_GET_LAYOUT_09911			_IOR(MSENSOR, 0x31, char)
+//#define ECS_IOCTL_GET_INFO			_IOR(MSENSOR, 0x27, unsigned char[AKM_SENSOR_INFO_SIZE])
+//#define ECS_IOCTL_GET_CONF			_IOR(MSENSOR, 0x28, unsigned char[AKM_SENSOR_CONF_SIZE])
+//#define ECS_IOCTL_SET_YPR_09911               _IOW(MSENSOR, 0x29, int[26])
+//#define ECS_IOCTL_GET_DELAY_09911             _IOR(MSENSOR, 0x30, int64_t[3])
+//#define	ECS_IOCTL_GET_LAYOUT_09911			_IOR(MSENSOR, 0x31, char)
+
+/* jonny IOCTLs for akm09911 device */ 
+/*
+#define ECS_IOCTL_GET_INFO			_IOR(MSENSOR, 0x27, unsigned char[GME_SENSOR_INFO_SIZE])
+#define ECS_IOCTL_GET_CONF			_IOR(MSENSOR, 0x28, unsigned char[GME_SENSOR_CONF_SIZE])
+#define ECS_IOCTL_SET_YPR_60X               _IOW(MSENSOR, 0x29, int[26])
+#define ECS_IOCTL_GET_DELAY_60X             _IOR(MSENSOR, 0x30, int64_t[3])
+#define	ECS_IOCTL_GET_LAYOUT_60X			_IOR(MSENSOR, 0x31, char)
+*/
+#define ECS_IOCTL_GET_INFO_60X			_IOR(MSENSOR, 0x32, unsigned char[GME_SENSOR_INFO_SIZE])
+#define ECS_IOCTL_GET_CONF_60X			_IOR(MSENSOR, 0x33, unsigned char[GME_SENSOR_CONF_SIZE])
+#define ECS_IOCTL_SET_YPR_60X               _IOW(MSENSOR, 0x34, int[26])
+#define ECS_IOCTL_GET_DELAY_60X             _IOR(MSENSOR, 0x35, int64_t[3])
+#define	ECS_IOCTL_GET_LAYOUT_60X			_IOR(MSENSOR, 0x36, char)
+
 
 /* IOCTLs for MMC31XX device */
 #define MMC31XX_IOC_TM					_IO(MSENSOR, 0x18)
@@ -171,12 +186,29 @@ struct SENSOR_DATA {
 #define COMPAT_MMC31XX_IOC_RM				   _IO(MSENSOR, 0x25)
 #define COMPAT_MMC31XX_IOC_RRM				   _IO(MSENSOR, 0x26)
 
+//jonny m s
 /*COMPAT IOCTLs for akm09911 device */
-#define COMPAT_ECS_IOCTL_GET_INFO			   _IOR(MSENSOR, 0x27, unsigned char[AKM_SENSOR_INFO_SIZE])
-#define COMPAT_ECS_IOCTL_GET_CONF			   _IOR(MSENSOR, 0x28, unsigned char[AKM_SENSOR_CONF_SIZE])
-#define COMPAT_ECS_IOCTL_SET_YPR_09911         _IOW(MSENSOR, 0x29, compat_int_t[26])
-#define COMPAT_ECS_IOCTL_GET_DELAY_09911       _IOR(MSENSOR, 0x30, int64_t[3])
-#define	COMPAT_ECS_IOCTL_GET_LAYOUT_09911	   _IOR(MSENSOR, 0x31, char)
+//#define COMPAT_ECS_IOCTL_GET_INFO			   _IOR(MSENSOR, 0x27, unsigned char[AKM_SENSOR_INFO_SIZE])
+//#define COMPAT_ECS_IOCTL_GET_CONF			   _IOR(MSENSOR, 0x28, unsigned char[AKM_SENSOR_CONF_SIZE])
+//#define COMPAT_ECS_IOCTL_SET_YPR_09911         _IOW(MSENSOR, 0x29, compat_int_t[26])
+//#define COMPAT_ECS_IOCTL_GET_DELAY_09911       _IOR(MSENSOR, 0x30, int64_t[3])
+//#define	COMPAT_ECS_IOCTL_GET_LAYOUT_09911	   _IOR(MSENSOR, 0x31, char)
+
+/*COMPAT IOCTLs for akm09911 device */
+/*
+#define COMPAT_ECS_IOCTL_GET_INFO			   _IOR(MSENSOR, 0x27, unsigned char[GME_SENSOR_INFO_SIZE])
+#define COMPAT_ECS_IOCTL_GET_CONF			   _IOR(MSENSOR, 0x28, unsigned char[GME_SENSOR_CONF_SIZE])
+#define COMPAT_ECS_IOCTL_SET_YPR_60X         _IOW(MSENSOR, 0x29, compat_int_t[26])
+#define COMPAT_ECS_IOCTL_GET_DELAY_60X       _IOR(MSENSOR, 0x30, int64_t[3])
+#define COMPAT_ECS_IOCTL_GET_LAYOUT_60X	   _IOR(MSENSOR, 0x31, char)
+*/
+#define COMPAT_ECS_IOCTL_GET_INFO_60X			   _IOR(MSENSOR, 0x32, unsigned char[GME_SENSOR_INFO_SIZE])
+#define COMPAT_ECS_IOCTL_GET_CONF_60X			   _IOR(MSENSOR, 0x33, unsigned char[GME_SENSOR_CONF_SIZE])
+#define COMPAT_ECS_IOCTL_SET_YPR_60X         _IOW(MSENSOR, 0x34, compat_int_t[26])
+#define COMPAT_ECS_IOCTL_GET_DELAY_60X       _IOR(MSENSOR, 0x35, int64_t[3])
+#define COMPAT_ECS_IOCTL_GET_LAYOUT_60X	   _IOR(MSENSOR, 0x36, char)
+//jonny m e
+
 
 /*COPMPAT IOCTLs for MMC31XX device */
 #define COMPAT_MMC31XX_IOC_TM				   _IO(MSENSOR, 0x18)
@@ -234,6 +266,10 @@ struct SENSOR_DATA {
 #define ALSPS_GET_ALS_DATA				_IOR(ALSPS, 0x07, int)
 #define ALSPS_GET_ALS_RAW_DATA				_IOR(ALSPS, 0x08, int)
 
+#define ALSPS_IOCTL_SET_CALI_CCI                 _IOW(ALSPS, 0x17, int)  /*Colby add 20130111*/
+#define ALSPS_SET_THD                 _IOW(ALSPS, 0x18, int) /*add for FTM interrupt check 20130416*/
+#define ALSPS_GET_INTERRUPT_COUNT     _IOR(ALSPS, 0x19, int) /*add for FTM interrupt check 20130416*/
+//#define ALSPS_IOCTL_SET_CALI_CCI     _IOR(ALSPS, 0x20, int) 
 /*-------------------MTK add-------------------------------------------*/
 #define ALSPS_GET_PS_TEST_RESULT		_IOR(ALSPS, 0x09, int)
 #define ALSPS_GET_ALS_TEST_RESULT		_IOR(ALSPS, 0x0A, int)
@@ -322,3 +358,4 @@ struct SENSOR_DATA {
 #define HUMIDITY_IOCTL_READ_CHIPINFO		_IOR(HUMIDITY, 0x04, int)
 
 #endif
+

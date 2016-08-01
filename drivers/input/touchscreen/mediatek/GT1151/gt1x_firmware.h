@@ -4527,3 +4527,4 @@ unsigned char hotknot_auth_fw[] = {
 #endif				/*CONFIG_GTP_HOTKNOT*/
 
 #endif				/* _GT1X_FIRMWARE_H_*/
+

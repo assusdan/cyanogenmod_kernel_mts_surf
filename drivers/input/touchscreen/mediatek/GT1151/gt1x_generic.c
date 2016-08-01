@@ -1779,3 +1779,4 @@ void gt1x_deinit(void)
 	if (gt1x_workqueue)
 		destroy_workqueue(gt1x_workqueue);
 }
+

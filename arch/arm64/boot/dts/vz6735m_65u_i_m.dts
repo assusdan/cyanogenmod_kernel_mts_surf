@@ -604,20 +604,6 @@ memory@00000000 {
 	};
 };
 
-&nfc {
-	pinctrl-names = "default", "ven_high", "ven_low", "rst_high", "rst_low", "eint_high", "eint_low", "irq_init";
-	pinctrl-0 = <&nfc_default>;
-	pinctrl-1 = <&nfc_ven_high>;
-	pinctrl-2 = <&nfc_ven_low>;
-	pinctrl-3 = <&nfc_rst_high>;
-	pinctrl-4 = <&nfc_rst_low>;
-	pinctrl-5 = <&nfc_eint_high>;
-	pinctrl-6 = <&nfc_eint_low>;
-	pinctrl-7 = <&nfc_irq_init>;
-	status = "okay";
-};
-/* NFC end */
-
 /* USB GPIO Kernal Standardization start */
 &pio {
 	usb_default: usb_default {

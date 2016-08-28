@@ -161,6 +161,7 @@ void mt_set_bl_frequency(unsigned int freq)
 {
 	bl_frequency_hal = freq;
 }
+
 #define BACKLIGHT_LEVEL_COUNT     16
 #define BL_LO_DALAY_US    1
 #define BL_HI_DALAY_US    1
@@ -204,7 +205,7 @@ unsigned int one_line_pulse_set_backlight(int level, int div)
     }
     else
     {
-        bl_level = level;
+        bl_level = level / BACKLIGHT_LEVEL_COUNT + 1;
     }
  
     pulse_num = (BACKLIGHT_LEVEL_COUNT + pre_level - bl_level) % BACKLIGHT_LEVEL_COUNT;
@@ -234,6 +235,7 @@ unsigned int one_line_pulse_set_backlight(int level, int div)
     mutex_unlock(&pulse_lock);
     return 0;
 }
+
 
 struct cust_mt65xx_led *get_cust_led_dtsi(void)
 {

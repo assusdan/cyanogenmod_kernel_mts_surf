@@ -10,7 +10,7 @@ mkdir tools/tools
 
 echo "Export toolchains >>>"
 
-export ARCH=arm CROSS_COMPILE=../*linaro_5.2*/bin/arm-cortex-linux-gnueabi-
+export ARCH=arm CROSS_COMPILE=../*5.2*/bin/arm-cortex-linux-gnueabi-
 
 echo "Make defconfig >>>"
 

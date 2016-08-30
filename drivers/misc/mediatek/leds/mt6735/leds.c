@@ -934,11 +934,11 @@ int mt_mt65xx_led_set_cust(struct cust_mt65xx_led *cust, int level)
 		return mt_brightness_set_pmic(cust->data, level, bl_div_hal);
 
 	case MT65XX_LED_MODE_CUST_LCM:
-		if (strcmp(cust->name, "lcd-backlight") == 0)
-			bl_brightness_hal = level;
-		LEDS_DEBUG("brightness_set_cust:backlight control by LCM\n");
-		/* warning for this API revork */
-		return ((cust_brightness_set) (cust->data)) (level, bl_div_hal);
+		if (strcmp(cust->name, "lcd-backlight") == 0) {
+			    bl_brightness_hal = level;
+            }
+			LEDS_DEBUG("brightness_set_cust:backlight control by LCM\n");
+			return ((cust_brightness_set)(cust->data))(level, bl_div_hal);
 
 	case MT65XX_LED_MODE_CUST_BLS_PWM:
 		if (strcmp(cust->name, "lcd-backlight") == 0)
@@ -1016,15 +1016,14 @@ void mt_mt65xx_led_set(struct led_classdev *led_cdev, enum led_brightness level)
 			LEDS_DEBUG
 			    ("Set Backlight directly %d at time %lu, mapping level is %d\n",
 			     led_data->level, jiffies, level);
-			if (MT65XX_LED_MODE_CUST_BLS_PWM == led_data->cust.mode) {
-				mt_mt65xx_led_set_cust(&led_data->cust,
-						       ((((1 <<
-							   MT_LED_INTERNAL_LEVEL_BIT_CNT)
-							  - 1) * level +
-							 127) / 255));
-			} else {
-				mt_mt65xx_led_set_cust(&led_data->cust, level);
+			if(MT65XX_LED_MODE_CUST_BLS_PWM == led_data->cust.mode)
+			{
+				mt_mt65xx_led_set_cust(&led_data->cust, ((((1 << MT_LED_INTERNAL_LEVEL_BIT_CNT) - 1)*level + 127)/255));
 			}
+			else
+			{
+				mt_mt65xx_led_set_cust(&led_data->cust, level);	
+		}
 		}
 	}
 	/* spin_unlock_irqrestore(&leds_lock, flags); */

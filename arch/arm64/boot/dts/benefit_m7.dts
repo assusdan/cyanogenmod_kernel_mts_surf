@@ -22,11 +22,11 @@
 	};
 	led6:led@6 {
 		compatible = "mediatek,lcd-backlight";
-		led_mode = <5>;
+		led_mode = <2>;
 		data = <0>;
 		pwm_config = <0 0 0 0 0>;
 	};
-	alsps@48 {
+	alsps:alsps@48 {
 				compatible = "mediatek,alsps";
 				reg = <0x48>;
 				status = "okay";

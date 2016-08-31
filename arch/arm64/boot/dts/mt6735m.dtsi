@@ -1799,18 +1799,6 @@ initrd=0x44000000,0x1000000 loglevel=8 androidboot.hardware=mt6735";
 		gsensor@0 {
 			compatible = "mediatek,gsensor";
 		};
-		alsps@48 {
-				compatible = "mediatek,alsps";
-				reg = <0x48>;
-				status = "okay";
-			};
-		alsps:als_ps@0 {
-		compatible = "mediatek,als_ps";
-		pinctrl-names = "pin_default", "pin_cfg";
-		pinctrl-0 = <0x5a>;
-		pinctrl-1 = <0x5b>;
-		status = "okay";
-	};
 		m_acc_pl@0 {
 			compatible = "mediatek,m_acc_pl";
 		};

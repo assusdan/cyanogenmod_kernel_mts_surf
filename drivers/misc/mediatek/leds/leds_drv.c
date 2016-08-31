@@ -380,35 +380,29 @@ int backlight_brightness_set(int level)
 	else if (level < 0)
 		level = 0;
 
-	if (MT65XX_LED_MODE_CUST_BLS_PWM ==
-	    cust_led_list[MT65XX_LED_TYPE_LCD].mode) {
-#ifdef CONTROL_BL_TEMPERATURE
-		mutex_lock(&bl_level_limit_mutex);
-		current_level = (level >> (MT_LED_INTERNAL_LEVEL_BIT_CNT - 8));	/* 8 bits */
-		if (0 == limit_flag) {
-			last_level = current_level;
-		} else {
-			if (limit < current_level) {
-				/* extend 8-bit limit to 10 bits */
-				level =
-				    (limit <<
-				     (MT_LED_INTERNAL_LEVEL_BIT_CNT -
-				      8)) | (limit >> (16 -
-						       MT_LED_INTERNAL_LEVEL_BIT_CNT));
-			}
-		}
-		mutex_unlock(&bl_level_limit_mutex);
-#endif
 
-		return
-		    mt_mt65xx_led_set_cust(&cust_led_list[MT65XX_LED_TYPE_LCD],
-					   level);
-	} else {
-		return mt65xx_led_set_cust(&cust_led_list[MT65XX_LED_TYPE_LCD],
-					   (level >>
-					    (MT_LED_INTERNAL_LEVEL_BIT_CNT -
-					     8)));
+	if(MT65XX_LED_MODE_CUST_BLS_PWM == cust_led_list[MT65XX_LED_TYPE_LCD].mode)
+	{
+	#ifdef CONTROL_BL_TEMPERATURE
+		mutex_lock(&bl_level_limit_mutex);
+		current_level = (level >> (MT_LED_INTERNAL_LEVEL_BIT_CNT - 8)); // 8 bits
+		if(0 == limit_flag){
+			last_level = current_level;
+		}else {
+			if(limit < current_level){
+				// extend 8-bit limit to 10 bits
+				level = (limit << (MT_LED_INTERNAL_LEVEL_BIT_CNT - 8)) | (limit >> (16 - MT_LED_INTERNAL_LEVEL_BIT_CNT));
+			}
+		}	
+		mutex_unlock(&bl_level_limit_mutex);
+	#endif
+
+		return mt_mt65xx_led_set_cust(&cust_led_list[MT65XX_LED_TYPE_LCD], level);
 	}
+	else
+	{
+		return mt65xx_led_set_cust(&cust_led_list[MT65XX_LED_TYPE_LCD],( level >> (MT_LED_INTERNAL_LEVEL_BIT_CNT - 8)) );
+	}	
 
 }
 EXPORT_SYMBOL(backlight_brightness_set);

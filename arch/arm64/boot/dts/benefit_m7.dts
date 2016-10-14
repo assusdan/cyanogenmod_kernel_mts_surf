@@ -22,7 +22,7 @@
 	};
 	led6:led@6 {
 		compatible = "mediatek,lcd-backlight";
-		led_mode = <2>;
+		led_mode = <5>;
 		data = <0>;
 		pwm_config = <0 0 0 0 0>;
 	};
@@ -42,7 +42,7 @@
 		compatible 				= "mediatek,MC3410";
 		i2c_num 				= <2>;
 		i2c_addr				= <0x4c 0 0 0>;
-		direction 				= <4>;
+		direction 				= <7>;
 		power_id 				= <0xffff>;
 		power_vol				= <0>;
 		firlen 					= <0>;

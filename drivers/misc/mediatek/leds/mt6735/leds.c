@@ -38,12 +38,7 @@
 #include "leds_sw.h"
 #include "leds_hal.h"
 #include "ddp_pwm.h"
-#include "../../include/mt-plat/mt_gpio_core.h"
-#include "../../include/mt-plat/mt_gpio.h"
-#include "../../video/include/mtkfb.h"
-#include <mt-plat/mt_gpio.h>
-#include "../../ssw/inc/ssw.h"
-#include "cust_gpio_usage.h"
+#include "mtkfb.h"
 
 /* for LED&Backlight bringup, define the dummy API */
 #ifndef CONFIG_MTK_PMIC
@@ -161,86 +156,6 @@ void mt_set_bl_frequency(unsigned int freq)
 {
 	bl_frequency_hal = freq;
 }
-#define BACKLIGHT_LEVEL_PWM_64_FIFO_MODE_SUPPORT 64 
-// Support 256 levels of backlight (when lcd-backlight = MT65XX_LED_MODE_PWM)
-#define BACKLIGHT_LEVEL_PWM_256_SUPPORT 256 
-
-// Configure the support type "BACKLIGHT_LEVEL_PWM_256_SUPPORT" or "BACKLIGHT_LEVEL_PWM_64_FIFO_MODE_SUPPORT" !!
-#define BACKLIGHT_LEVEL_PWM_MODE_CONFIG BACKLIGHT_LEVEL_PWM_256_SUPPORT
-
-#define BACKLIGHT_LEVEL_COUNT     16
-#define BL_LO_DALAY_US    1
-#define BL_HI_DALAY_US    1
-#define BL_OFF_DALAY_US   3000
-
-static DEFINE_MUTEX(pulse_lock);
-static int pre_level = BACKLIGHT_LEVEL_COUNT;
-
-void one_line_pulse_set_pulse(int step)
-{
-    int i;
-    for (i = 0; i < step; i++)
-    {
-        mt_set_gpio_out(69, 0);
-        udelay(BL_LO_DALAY_US);
-        mt_set_gpio_out(69, 1);   
-        udelay(BL_HI_DALAY_US);
-    }
-}
-
-unsigned int one_line_pulse_set_backlight(int level, int div)
-{
-    unsigned int bl_level, pulse_num = 0;;
-
-
-
-
-    mutex_lock(&pulse_lock);
-    mt_set_gpio_mode(69, 0);
-
-    printk(" one_line_pulse_set_backlight----------level (%d)\n", level);
-
-    if(level > 255)
-    {
-        level = 255;
-    }
-
-    if(level == 0)
-    {
-        bl_level = 0;
-    }
-    else
-    {
-        bl_level = level / BACKLIGHT_LEVEL_COUNT + 1;
-    }
- 
-    pulse_num = level;
-    if(pre_level == 0)
-    {
-        pulse_num = pulse_num + 1;
-    }
-    printk(" one_line_pulse_set_backlight----------pre_level(%d), bl_level(%d), pulse_num(%d)\n", pre_level, bl_level, pulse_num);
-
-    if(level == 0)
-    {
-        mt_set_gpio_out(69, 0);
-        mdelay(3);
-    }
-    else
-    {
-        if(pre_level == bl_level)
-        {
-        }
-        else
-        {
-            one_line_pulse_set_pulse(pulse_num);
-        }
-    }
-
-    pre_level = bl_level;
-    mutex_unlock(&pulse_lock);
-    return 0;
-}
 
 struct cust_mt65xx_led *get_cust_led_dtsi(void)
 {
@@ -344,13 +259,9 @@ struct cust_mt65xx_led *get_cust_led_dtsi(void)
 					break;
 				case MT65XX_LED_MODE_CUST_BLS_PWM:
 					pled_dtsi[i].data =
-					    (long)one_line_pulse_set_backlight;
+					    (long)disp_bls_set_backlight;
 					LEDS_DEBUG
 					    ("kernel:the backlight hw mode is BLS.\n");
-					break;
-				case MT65XX_LED_MODE_GPIO:
-					pled_dtsi[i].data =
-					    (long)one_line_pulse_set_backlight;
 					break;
 				default:
 					break;
@@ -376,6 +287,18 @@ struct cust_mt65xx_led *mt_get_cust_led_list(void)
 /****************************************************************************
  * internal functions
  ***************************************************************************/
+static int brightness_mapto64(int level)
+{
+	if (level < 30)
+		return (level >> 1) + 7;
+	else if (level <= 120)
+		return (level >> 2) + 14;
+	else if (level <= 160)
+		return level / 5 + 20;
+	else
+		return (level >> 3) + 33;
+}
+
 static int find_time_index(int time)
 {
 	int index = 0;
@@ -861,6 +784,8 @@ int mt_mt65xx_led_set_cust(struct cust_mt65xx_led *cust, int level)
 	struct nled_setting led_tmp_setting = { 0, 0, 0 };
 	int tmp_level = level;
 	static bool button_flag;
+	unsigned int BacklightLevelSupport =
+	    Cust_GetBacklightLevelSupport_byPWM();
 
 	switch (cust->mode) {
 
@@ -873,8 +798,11 @@ int mt_mt65xx_led_set_cust(struct cust_mt65xx_led *cust, int level)
 
 			} else {
 
+				if (BacklightLevelSupport ==
+				    BACKLIGHT_LEVEL_PWM_256_SUPPORT)
 					level = brightness_mapping(tmp_level);
-
+				else
+					level = brightness_mapto64(tmp_level);
 				mt_backlight_set_pwm(cust->data, level,
 						     bl_div_hal,
 						     &cust->config_data);
@@ -908,16 +836,15 @@ int mt_mt65xx_led_set_cust(struct cust_mt65xx_led *cust, int level)
 					button_flag_isink0 = 1;
 					break;
 				case MT65XX_LED_PMIC_NLED_ISINK1:
-					button_flag_isink0 = 1;
+					button_flag_isink1 = 1;
 					break;
 				case MT65XX_LED_PMIC_NLED_ISINK2:
-					button_flag_isink0 = 1;
+					button_flag_isink2 = 1;
 					break;
 				case MT65XX_LED_PMIC_NLED_ISINK3:
-					button_flag_isink0 = 1;
+					button_flag_isink3 = 1;
 					break;
 				default:
-					
 					break;
 				}
 				button_flag = true;
@@ -926,11 +853,11 @@ int mt_mt65xx_led_set_cust(struct cust_mt65xx_led *cust, int level)
 		return mt_brightness_set_pmic(cust->data, level, bl_div_hal);
 
 	case MT65XX_LED_MODE_CUST_LCM:
-		if (strcmp(cust->name, "lcd-backlight") == 0) {
-			    bl_brightness_hal = level;
-            }
-			LEDS_DEBUG("brightness_set_cust:backlight control by LCM\n");
-			return ((cust_brightness_set)(cust->data))(level, bl_div_hal);
+		if (strcmp(cust->name, "lcd-backlight") == 0)
+			bl_brightness_hal = level;
+		LEDS_DEBUG("brightness_set_cust:backlight control by LCM\n");
+		/* warning for this API revork */
+		return ((cust_brightness_set) (cust->data)) (level, bl_div_hal);
 
 	case MT65XX_LED_MODE_CUST_BLS_PWM:
 		if (strcmp(cust->name, "lcd-backlight") == 0)
@@ -1008,14 +935,15 @@ void mt_mt65xx_led_set(struct led_classdev *led_cdev, enum led_brightness level)
 			LEDS_DEBUG
 			    ("Set Backlight directly %d at time %lu, mapping level is %d\n",
 			     led_data->level, jiffies, level);
-			if(MT65XX_LED_MODE_CUST_BLS_PWM == led_data->cust.mode)
-			{
-				mt_mt65xx_led_set_cust(&led_data->cust, ((((1 << MT_LED_INTERNAL_LEVEL_BIT_CNT) - 1)*level + 127)/255));
+			if (MT65XX_LED_MODE_CUST_BLS_PWM == led_data->cust.mode) {
+				mt_mt65xx_led_set_cust(&led_data->cust,
+						       ((((1 <<
+							   MT_LED_INTERNAL_LEVEL_BIT_CNT)
+							  - 1) * level +
+							 127) / 255));
+			} else {
+				mt_mt65xx_led_set_cust(&led_data->cust, level);
 			}
-			else
-			{
-				mt_mt65xx_led_set_cust(&led_data->cust, level);	
-		}
 		}
 	}
 	/* spin_unlock_irqrestore(&leds_lock, flags); */

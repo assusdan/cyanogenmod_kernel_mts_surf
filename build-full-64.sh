@@ -1,6 +1,6 @@
 #!/bin/bash
 
-export KBUILD_BUILD_USER=oleg.svs
+export KBUILD_BUILD_USER=assusdan
 
 export KBUILD_BUILD_HOST=SRT
 
